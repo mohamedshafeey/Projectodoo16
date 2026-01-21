@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="group_unlimited_discount" model="res.groups">
+            <field name="name">Unlimited Discount</field>
+        </record>
+        <record id="group_last_version" model="res.groups">
+            <field name="name">Last Version</field>
+        </record>
+        <record id="group_delivery_sale_order" model="res.groups">
+            <field name="name">Delivery Sale Order</field>
+        </record>
+    </data>
+</odoo>

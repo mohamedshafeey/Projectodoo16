@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="readonly_unit_price_form_inherit" model="ir.ui.view">
+            <field name="name">readonly.unit.price.form</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="/form/sheet/notebook/page/field[@name='order_line']/tree/field[@name='price_unit']"
+                       position="replace">
+                    <field name="price_unit" readonly="1" groups="!sales_team.group_sale_manager"/>
+                    <field name="price_unit" groups="sales_team.group_sale_manager" readonly="1"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="res_config_settings_view_form_stock_cancel" model="ir.ui.view">
+            <field name="name">res.config.settings.form</field>
+            <field name="model">res.config.settings</field>
+            <field name="inherit_id" ref="sale.res_config_settings_view_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//div[@id='discount_sale_order_lines']" position="inside">
+
+                    <div class="o_setting_right_pane">
+                        <label for="limit_discount"/>
+                        <div class="text-muted">
+                            <field name="limit_discount"/>
+                        </div>
+                        <label for="manger_limit_discount"/>
+                        <div class="text-muted">
+                            <field name="manger_limit_discount"/>
+                        </div>
+                    </div>
+
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>

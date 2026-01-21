@@ -1,0 +1,89 @@
+<odoo>
+    <data>
+        <!-- Inherit Form View to Modify it -->
+        <record id="approval_payment_sale_order_form" model="ir.ui.view">
+            <field name="name">approval.payment.sale.order.form</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//button[@id='action_confirm']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//button[@name='action_quotation_send']" position="attributes">
+                    <attribute name="attrs">{'invisible': ['|', ('state', 'not in', ['draft', 'sent','sale',
+                        'approval']),
+                        ('id',
+                        '=', False)]}
+                    </attribute>
+                </xpath>
+                <xpath expr="//button[@name='action_cancel']" position="attributes">
+                    <attribute name="attrs">{'invisible': ['|', ('state', '=', 'done'), ('id',
+                        '=', False)]}
+                    </attribute>
+                </xpath>
+                <xpath expr="//button[8]" position="attributes">
+                    <attribute name="attrs">{'invisible': [('state', 'not in', ['approval'])]}
+                    </attribute>
+                    <attribute name="groups">account.group_account_manager</attribute>
+                </xpath>
+                <xpath expr="//button[@id='action_confirm']" position="after">
+                    <button name="action_send_approval_payment" string="Approval" class="btn-primary"
+                            type="object"
+                            attrs="{'invisible': [('state', 'in', ['approval','cancel','sale','done'])]}"
+                            groups="sales_team.group_sale_manager"/>
+                    <button name="action_edit_quantity" string="End Order" class="btn-primary"
+                            type="object"
+                            attrs="{'invisible': [('state', 'not in', ['sale','done'])]}"/>
+                    <button name="copy_order" string="New Version" class="btn-primary"
+                            type="object" attrs="{'invisible': [('state', '!=', 'draft')]}"/>
+                </xpath>
+                <xpath expr="//field[@name='order_line']/tree/field[@name='tax_id']" position="before">
+                    <field name="price_unit_after_discount"/>
+                </xpath>
+                <xpath expr="//notebook/page[@name='order_lines']/field[@name='order_line']" position="attributes">
+                    <attribute name="attrs">{'readonly': [('state', 'in', ['approval', 'sale', 'done'])]}</attribute>
+                </xpath>
+
+                <xpath expr="//header/field[@name='state']" position="attributes">
+                    <attribute name="statusbar_visible">draft,sent,approval,sale</attribute>
+                </xpath>
+
+                <xpath expr="//field[@name='partner_id']" position="after">
+                    <field name="version_num" invisible="1"/>
+                    <field name="project_name"/>
+                    <field name="project_ref"/>
+                    <field name="sale_id" readonly="1" attrs="{'invisible': [('sale_id', '=', False)]}"/>
+                </xpath>
+                <xpath expr="//field[@name='project_ref']" position="after">
+                    <xpath expr="//field[@name='client_order_ref']" position="move"/>
+                </xpath>
+                <xpath expr="//field[@name='client_order_ref']" position="attributes">
+                    <attribute name="string">Customer Order ref</attribute>
+                </xpath>
+
+                <xpath expr="//div[hasclass('oe_button_box')]" position="inside">
+                    <button name="version_count" string="Versions" class="btn-primary"
+                            type="object" attrs="{'invisible': [('version_num', '=', 1)]}" icon="fa-list-ul"/>
+                </xpath>
+                <xpath expr="//field[@name='client_order_ref']" position="after">
+                    <field name="last_version" groups="sales_team.group_sale_salesman"/>
+                </xpath>
+                <xpath expr="//notebook/page[@name='order_lines']" position="after">
+                    <page name="alternative_order" string="Alternative Order">
+                        <field name="alternative_order_ids">
+                            <tree editable="bottom">
+                                <field name="order_line_id"/>
+                                <field name="product_id"/>
+                                <field name="description"/>
+                                <field name="quantity"/>
+                                <field name="price_unit"/>
+                                <field name="sale_id" invisible="1"/>
+                            </tree>
+                        </field>
+                    </page>
+                </xpath>
+
+            </field>
+        </record>
+    </data>
+</odoo>

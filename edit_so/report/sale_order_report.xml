@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="id_sale_order_portal_content_inherit_remove_discount"
+                  inherit_id="sale.sale_order_portal_content">
+            <xpath expr="//section[@id='details']//th[4]" position="attributes">
+                <attribute name="t-if">1 == 0</attribute>
+            </xpath>
+            <xpath expr="//div[@t-if='line.discount &gt;= 0']" position="attributes">
+                <attribute name="t-if">1 == 0</attribute>
+            </xpath>
+            <xpath expr="//section[@id='details']//td[4]" position="attributes">
+                <attribute name="t-if">1 == 0</attribute>
+            </xpath>
+        </template>
+        <template id="id_report_saleorder_document_inherit_sale_management"
+                  inherit_id="sale_management.report_saleorder_document_inherit_sale_management">
+            <xpath expr="//th[@name='th_option_discount']" position="attributes">
+                <attribute name="class">text-start d-none</attribute>
+            </xpath>
+            <xpath expr="//td[@name='td_option_discount']" position="attributes">
+                <attribute name="class">d-none</attribute>
+            </xpath>
+            <xpath expr="//td[@name='td_option_price_unit']" position="replace">
+                <td name="td_option_price_unit">
+                    <strong class="text-end">
+                        <div t-if="option.discount">
+                            <t t-out="'%.2f' % ((1-option.discount / 100.0) * option.price_unit)"/>
+                        </div>
+                    </strong>
+                </td>
+            </xpath>
+        </template>
+        <template id="report_sale_order" inherit_id="sale.report_saleorder_document">
+            <xpath expr="//table/thead/tr/th[@name='th_discount']" position="replace"/>
+            <xpath expr="//table/thead/tr/th[@name='th_description']" position="before">
+                <th name="th_no" class="text-start">NO</th>
+                <th name="th_model" class="text-start">Model</th>
+            </xpath>
+            <xpath expr="//table/tbody//td[@t-if='display_discount']" position="replace"/>
+            <xpath expr="//table/tbody//td[@name='td_priceunit']" position="replace">
+                <td name="td_priceunit" class="text-end">
+                    <span t-esc="line.price_unit - (line.price_unit * (line.discount / 100))"/>
+                </td>
+            </xpath>
+            <xpath expr="//th[@name='th_taxes']" position="attributes">
+                <attribute name="class">text-end d-none</attribute>
+            </xpath>
+            <xpath expr="//td[@name='td_taxes']" position="attributes">
+                <attribute name="class">text-end d-none</attribute>
+            </xpath>
+            <xpath expr="//table/tbody//td[@name='td_name']" position="before">
+                <td name="td_no">
+                    <t t-esc="line_index +1"/>
+                </td>
+                <td name="td_product">
+                    <span t-field="line.product_id.name"/>
+                </td>
+            </xpath>
+            <xpath expr="//t[@t-foreach='lines_to_report']" position="inside">
+                <t t-foreach="line.alternative_order_ids" t-as="record">
+                    <tr>
+                        <td></td>
+                        <td name="td_record_product">
+                            <span t-field="record.product_id.name"/>
+                        </td>
+                        <td name="td_record_description">
+                            <span t-field="record.description"/>
+                        </td>
+                        <td name="td_record_quantity" class="text-end">
+                            <span t-field="record.quantity"/>
+                            <span t-field="line.product_uom"/>
+                        </td>
+                        <td name="td_record_price_unit">
+                            <span t-field="record.price_unit"/>
+                        </td>
+                        <td style="color: red" colspan="2" class="text-center">Alternative</td>
+                    </tr>
+                </t>
+            </xpath>
+        </template>
+    </data>
+</odoo>
