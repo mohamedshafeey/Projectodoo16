@@ -114,10 +114,14 @@ jobs:
           path: odoo
           fetch-depth: 1
 
+      # Python 3.9 is used here (not 3.10) because Odoo 16's pinned
+      # gevent==21.8.0 has no prebuilt wheel for 3.10 and fails to build
+      # from source against modern Cython. 3.9 resolves to a version with
+      # a ready-made wheel.
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: '3.9'
 
       - name: Install system dependencies
         run: |
