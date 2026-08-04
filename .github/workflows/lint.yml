@@ -140,11 +140,18 @@ jobs:
         env:
           MODULES: custom,edit_account,edit_product,journal_type_ref,product_brand_inventory
         run: |
+          # --test-tags scopes tests to our own modules only. Without it, Odoo
+          # also runs the test suites of auto-installed glue modules pulled in
+          # by our dependencies (e.g. sale_stock, auto-installed because both
+          # 'sale' and 'stock' end up installed) -- those belong to Odoo core,
+          # not to us, and their failures are noise for this workflow.
+          TEST_TAGS=$(echo "$MODULES" | sed 's/,/,\//g; s/^/\//')
           python odoo/odoo-bin \
             --addons-path=odoo/addons,custom-addons \
             -d test_db \
             --db_host=localhost --db_port=5432 --db_user=odoo --db_password=odoo \
             -i "$MODULES" \
             --test-enable \
+            --test-tags "$TEST_TAGS" \
             --stop-after-init \
             --log-level=test
