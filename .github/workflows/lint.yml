@@ -1,4 +1,4 @@
-name: Lint Manifests
+name: Odoo Module Checks
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  check:
+  lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -16,6 +16,9 @@ jobs:
         with:
           python-version: '3.10'
 
+      - name: Install lint tools
+        run: pip install pylint pylint-odoo
+
       - name: Check Python syntax
         run: |
           find . -name "*.py" -print0 | xargs -0 -n1 python -m py_compile
@@ -24,3 +27,118 @@ jobs:
         run: |
           sudo apt-get install -y libxml2-utils
           find . -name "*.xml" -print0 | xargs -0 -n1 xmllint --noout
+
+      - name: Validate __manifest__.py files
+        run: |
+          python - <<'PY'
+          import ast, glob, sys
+
+          required_keys = ['name', 'depends']
+          errors = []
+
+          for path in glob.glob('*/__manifest__.py'):
+              with open(path, encoding='utf-8') as f:
+                  src = f.read()
+              try:
+                  data = ast.literal_eval(src)
+              except Exception as e:
+                  errors.append(f"{path}: cannot parse as a Python dict -> {e}")
+                  continue
+              if not isinstance(data, dict):
+                  errors.append(f"{path}: manifest is not a dict")
+                  continue
+              missing = [k for k in required_keys if k not in data]
+              if missing:
+                  errors.append(f"{path}: missing required key(s) {missing}")
+
+          if errors:
+              print("\n".join(errors))
+              sys.exit(1)
+          print("All manifests are valid.")
+          PY
+
+      - name: Check for duplicate XML record ids
+        run: |
+          python - <<'PY'
+          import glob, re, collections, sys
+
+          ids = collections.defaultdict(list)
+          for path in glob.glob('**/*.xml', recursive=True):
+              with open(path, encoding='utf-8') as f:
+                  content = f.read()
+              for m in re.finditer(r'<record[^>]*\bid="([^"]+)"', content):
+                  ids[m.group(1)].append(path)
+
+          dupes = {k: v for k, v in ids.items() if len(v) > 1}
+          if dupes:
+              for k, v in dupes.items():
+                  print(f"Duplicate id '{k}' found in: {', '.join(v)}")
+              sys.exit(1)
+          print("No duplicate XML ids found.")
+          PY
+
+      - name: Run pylint-odoo (report only, does not fail the build yet)
+        continue-on-error: true
+        run: |
+          MODULES=$(find . -maxdepth 1 -mindepth 1 -type d ! -path "./.git" ! -path "./.github")
+          pylint --load-plugins=pylint_odoo -d all -e odoolint $MODULES
+
+  odoo-install-test:
+    runs-on: ubuntu-latest
+    needs: lint
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_USER: odoo
+          POSTGRES_PASSWORD: odoo
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - name: Checkout custom addons
+        uses: actions/checkout@v4
+        with:
+          path: custom-addons
+
+      - name: Checkout Odoo 16.0 core
+        uses: actions/checkout@v4
+        with:
+          repository: odoo/odoo
+          ref: '16.0'
+          path: odoo
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-dev libxml2-dev libxslt1-dev libldap2-dev \
+            libsasl2-dev libpq-dev libjpeg-dev libffi-dev
+
+      - name: Install Odoo Python requirements
+        run: pip install -r odoo/requirements.txt
+
+      # edit_so depends on a module ('edit_po') and a model ('sac.project') that
+      # do not exist in this repository, so it cannot be installed standalone here.
+      - name: Install and test self-contained modules
+        env:
+          MODULES: custom,edit_account,edit_product,journal_type_ref,product_brand_inventory
+        run: |
+          python odoo/odoo-bin \
+            --addons-path=odoo/addons,custom-addons \
+            -d test_db \
+            --db_host=localhost --db_port=5432 --db_user=odoo --db_password=odoo \
+            -i "$MODULES" \
+            --test-enable \
+            --stop-after-init \
+            --log-level=test
