@@ -8,6 +8,5 @@ class SaleOrder(models.Model):
 
     date = fields.Char(string='Date')
     datefrom = fields.Char(string='Date')
-    yahia = fields.Char(string='Yahia')
     
 
