@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Add Date field to Sales Order form view -->
+        <record id="view_order_form_custom_date" model="ir.ui.view">
+            <field name="name">sale.order.form.custom.date</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='date_order']" position="after">
+                    <field name="date"/>
+                </xpath>
+            </field>
+        </record>
+
+        <!-- Add Date field to Sales Order tree view -->
+        <record id="view_order_tree_custom_date" model="ir.ui.view">
+            <field name="name">sale.order.tree.custom.date</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='date_order']" position="after">
+                    <field name="date" optional="show"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>
