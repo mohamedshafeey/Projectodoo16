@@ -9,5 +9,3 @@ class SaleOrder(models.Model):
     date = fields.Date(string='Date')
     date_from = fields.Date(string='Date From')
     date_to = fields.Date(string='Date To')
-
-
