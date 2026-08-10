@@ -5,5 +5,9 @@
             "envManager": "ms-python.python:system",
             "packageManager": "ms-python.python:pip"
         }
+    ],
+    "python.defaultInterpreterPath": "D:\\odoo16\\venv\\Scripts\\python.exe",
+    "python.analysis.extraPaths": [
+        "D:\\odoo16\\server"
     ]
 }

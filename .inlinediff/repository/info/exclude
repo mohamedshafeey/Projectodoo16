@@ -1,0 +1,47 @@
+# Inline Diff ignore — same syntax as .gitignore. Edit freely.
+# Dependency, virtual-env, and build-cache folders are always excluded automatically.
+# This file covers build outputs and secrets — remove a line to start tracking that path.
+
+# Build output
+dist/
+build/
+out/
+bin/
+obj/
+coverage/
+
+# Secrets — Inline Diff does NOT honor .gitignore, so guard credentials explicitly.
+.env
+.env.*
+!.env.example
+!.env.sample
+*.pem
+*.key
+
+.git/
+.inlinediff/
+node_modules/
+bower_components/
+vendor/
+Pods/
+Carthage/
+target/
+.venv/
+venv/
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.gradle/
+.dart_tool/
+.terraform/
+.next/
+.nuxt/
+.svelte-kit/
+.angular/
+.turbo/
+.parcel-cache/
+.cache/
+DerivedData/
+.build/
+!/.diffignore
