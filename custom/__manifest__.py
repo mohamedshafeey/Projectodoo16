@@ -2,8 +2,8 @@
 {
     'name': 'Custom',
     'version': '16.0.1.0.0',
-    'summary': 'Add Date field to Sales Order',
-    'description': 'Adds a custom "Date" field (Char) to the Sales Order form and tree views.',
+    'summary': 'Add Date, Date From and Date To fields to Sales Order',
+    'description': 'Adds custom "Date", "Date From" and "Date To" fields (Date) to the Sales Order form and tree views.',
     'category': 'Sales',
     'author': 'My Company',
     'website': 'https://www.yourcompany.com',
