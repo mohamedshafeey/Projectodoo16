@@ -12,7 +12,7 @@ class Property(models.Model):
     expected_price = fields.Float()
     selling_price = fields.Float()
     diff= fields.Float(compute='_compute_diff')
-    bedrooms = fields.Integer()
+    bedroom = fields.Integer()
     living_area = fields.Integer()
     facades = fields.Integer()
     garage = fields.Boolean()
